@@ -35,7 +35,7 @@ def mostrar_grafico(especie):
     plt.tight_layout()
     plt.show()
 
-def abrir_seleccion_especie_para_grafico():
+def abrir_seleccion_especie_para_grafico(root_window):
     """
     Abre una ventana secundaria (Toplevel) para que el usuario seleccione 
     una especie de un Combobox y luego muestre el gráfico.
@@ -52,13 +52,11 @@ def abrir_seleccion_especie_para_grafico():
         messagebox.showerror("Error", "No hay especies disponibles.")
         return
     
-    from main import root 
-
-    # Creación de la ventana de selección
-    win = tk.Toplevel(root) 
+    win = tk.Toplevel(root_window) 
     win.title("Seleccione especie para gráfico")
     win.geometry("350x140")
     tk.Label(win, text="Seleccione la especie:", font=("Arial", 11)).pack(pady=8)
+    
     
     # Combobox con la lista de especies
     cb = ttk.Combobox(win, values=especies, state="readonly", width=30)

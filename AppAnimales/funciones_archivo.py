@@ -1,9 +1,6 @@
 import pandas as pd
 from tkinter import filedialog, messagebox
-import datos_globales # Contiene df y ruta_archivo
-
-# ¡IMPORTANTE! Eliminamos todas las referencias a funciones de la GUI para evitar
-# que se importe y ejecute 'main.py' de nuevo.
+import datos_globales 
 
 def cargar_excel():
     """

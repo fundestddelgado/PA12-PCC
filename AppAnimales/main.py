@@ -125,9 +125,9 @@ tk.Label(frame_menu,
         fg="#2E7D32").pack(pady=(0, 30))
 
 # Botones usando las funciones (locales e importadas)
-ttk.Button(frame_menu, text="1️ Ingresar Excel", width=40, command=accion_cargar_excel).pack(pady=10)
-ttk.Button(frame_menu, text="2️ Mostrar Datos", width=40, command=lambda: mostrar_frame("tabla")).pack(pady=8)
-ttk.Button(frame_menu, text="3️ Mostrar Gráfico", width=40, command=abrir_seleccion_especie_para_grafico).pack(pady=8)
+ttk.Button(frame_menu, text="1️ Ingresar Base de Datos", width=40, command=accion_cargar_excel).pack(pady=10)
+ttk.Button(frame_menu, text="2️ Base de datos", width=40, command=lambda: mostrar_frame("tabla")).pack(pady=8)
+ttk.Button(frame_menu, text="3️ Mostrar Gráfico", width=40, command=lambda: abrir_seleccion_especie_para_grafico(root)).pack(pady=8)
 ttk.Button(frame_menu, text="4️ Ingresar Animal", width=40, command=lambda: mostrar_frame("agregar")).pack(pady=8)
 ttk.Button(frame_menu, text="5️ Modificar / Eliminar (seleccionar fila)", width=40, command=lambda: iniciar_modificar_eliminar(tabla, mostrar_frame, root, actualizar_tabla)).pack(pady=8)
 ttk.Button(frame_menu, text="6️ Generar Informe PDF", width=40, command=abrir_seleccion_especie_para_informe).pack(pady=8)
@@ -177,11 +177,19 @@ entry_anio = tk.Entry(frm_inputs, width=40)
 entry_anio.grid(row=2, column=1, pady=6)
 
 tk.Label(frm_inputs, text="Provincia:", bg="#FFFFFF").grid(row=3, column=0, sticky="e", padx=6, pady=6)
-entry_provincia = tk.Entry(frm_inputs, width=40)
+entry_provincia = ttk.Combobox(frm_inputs, values=datos_globales.PROVINCIAS_PANAMA, state="readonly", width=38)
 entry_provincia.grid(row=3, column=1, pady=6)
+entry_provincia.set(datos_globales.PROVINCIAS_PANAMA[0])
 
-# Botones del Frame Agregar
-ttk.Button(frame_agregar, text="Guardar Animal", command=agregar_animal).pack(pady=10)
+ttk.Button(frame_agregar, 
+           text="Guardar Animal",
+           command=lambda: agregar_animal(entry_nombre, 
+                                         entry_cantidad, 
+                                         entry_anio, 
+                                         entry_provincia, 
+                                         actualizar_tabla, 
+                                         limpiar_campos_agregar)
+).pack(pady=10)
 ttk.Button(frame_agregar, text="⬅️ Regresar al Menú", command=lambda: mostrar_frame("menu")).pack(pady=5)
 
 

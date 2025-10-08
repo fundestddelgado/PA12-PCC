@@ -2,6 +2,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import messagebox, ttk 
 import datos_globales 
+from datos_globales import PROVINCIAS_PANAMA
 
 # ----------------------------------------------------------------------
 # 1. FUNCIONES AUXILIARES DE LÓGICA
@@ -45,10 +46,10 @@ def iniciar_modificar_eliminar(tabla_widget, mostrar_frame_func, root_window, ac
         messagebox.showerror("Error", "No hay datos. Cargue o ingrese animales primero.")
         return
         
-    mostrar_frame_func("tabla") 
     seleccion = tabla_widget.selection()
     
     if not seleccion:
+        mostrar_frame_func("tabla") 
         messagebox.showinfo("Aviso", "Primero seleccione una fila en la tabla (clic sobre la fila) y luego pulse 'Modificar / Eliminar' de nuevo.")
         return
     iid = seleccion[0]
@@ -75,18 +76,13 @@ def abrir_dialogo_modificar_eliminar(idx, root_window, actualizar_tabla_func):
         confirm = messagebox.askyesno("Confirmar", "¿Eliminar este registro?")
         if confirm:
             try:
-                # Lógica de eliminación usando df de datos_globales
-                condiciones = (datos_globales.df["Especie"] == fila["Especie"]) & (datos_globales.df["Cantidad"] == fila["Cantidad"]) & (datos_globales.df["Año"] == fila["Año"]) & (datos_globales.df["Provincia"] == fila["Provincia"])
-                indices = datos_globales.df[condiciones].index
-                if len(indices) > 0:
-                    datos_globales.df.drop(indices[0], inplace=True)
-                else:
-                    datos_globales.df.drop(datos_globales.df.index[idx], inplace=True)
+                datos_globales.df.drop(datos_globales.df.index[idx], inplace=True)
                 
-                datos_globales.df.reset_index(drop=True, inplace=True)
+                datos_globales.df.reset_index(drop=True, inplace=True) 
             except Exception:
                 messagebox.showerror("Error", "No se pudo eliminar el registro.")
                 return
+            
             actualizar_tabla_func() 
             messagebox.showinfo("Éxito", "Registro eliminado.")
             win.destroy()
@@ -117,9 +113,9 @@ def abrir_dialogo_modificar_eliminar(idx, root_window, actualizar_tabla_func):
         ent_anio.insert(0, str(fila["Año"]))
 
         tk.Label(frm, text="Provincia:").grid(row=3, column=0, sticky="e", padx=6, pady=6)
-        ent_prov = tk.Entry(frm, width=30)
+        ent_prov = ttk.Combobox(frm, values=PROVINCIAS_PANAMA, state="readonly", width=28) 
         ent_prov.grid(row=3, column=1, pady=6)
-        ent_prov.insert(0, str(fila["Provincia"]))
+        ent_prov.set(str(fila["Provincia"])) # Muestra el valor actual
 
 
         def guardar_cambios():
@@ -134,15 +130,15 @@ def abrir_dialogo_modificar_eliminar(idx, root_window, actualizar_tabla_func):
             nueva_prov = ent_prov.get().strip()
             
             try:
-                # Modificación de datos globales
-                condiciones = (datos_globales.df["Especie"] == fila["Especie"]) & (datos_globales.df["Cantidad"] == fila["Cantidad"]) & (datos_globales.df["Año"] == fila["Año"]) & (datos_globales.df["Provincia"] == fila["Provincia"])
-                indices = datos_globales.df[condiciones].index
-                idx_real = indices[0] if len(indices) > 0 else datos_globales.df.index[idx]
-                
+                idx_real = datos_globales.df.index[idx] # Obtiene el índice de Pandas 
                 datos_globales.df.at[idx_real, "Especie"] = nuevo_nombre
                 datos_globales.df.at[idx_real, "Cantidad"] = nuevo_cant
                 datos_globales.df.at[idx_real, "Año"] = nuevo_anio
                 datos_globales.df.at[idx_real, "Provincia"] = nueva_prov
+                
+                # Aseguramos el tipo entero después de la modificación
+                datos_globales.df["Cantidad"] = asegurar_tipo_numerico(datos_globales.df["Cantidad"])
+                datos_globales.df["Año"] = asegurar_tipo_numerico(datos_globales.df["Año"])
                 
                 actualizar_tabla_func()
                 messagebox.showinfo("Éxito", "Registro modificado.")
@@ -194,7 +190,9 @@ def agregar_animal(entry_nombre_widget, entry_cantidad_widget, entry_anio_widget
     nueva_fila = pd.DataFrame([[especie, cantidad_i, anio_i, provincia]],
                               columns=["Especie", "Cantidad", "Año", "Provincia"])
     datos_globales.df = pd.concat([datos_globales.df, nueva_fila], ignore_index=True)
-    
+    datos_globales.df["Cantidad"] = asegurar_tipo_numerico(datos_globales.df["Cantidad"])
+    datos_globales.df["Año"] = asegurar_tipo_numerico(datos_globales.df["Año"])
+
     actualizar_tabla_func()
     limpiar_campos_func()
     messagebox.showinfo("Éxito", "Animal ingresado correctamente.")
